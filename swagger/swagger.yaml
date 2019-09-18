@@ -1099,12 +1099,6 @@ definitions:
         example: fc3c286e-78b3-490b-be6a-79a6069fd68e
         x-fieldName: id
         x-primaryKey: true
-      parentId:
-        type: string
-        format: uuid
-        description: 父ID
-        example: cc1aca88-feae-4dad-b906-cad6d50e16de
-        x-fieldName: parent_id
       name:
         type: string
         format: string

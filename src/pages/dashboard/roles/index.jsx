@@ -55,28 +55,7 @@ const ViewModal = ({
   children,
   modalTitle = '编辑',
   modalWith = 720,
-  formData: {
-    id,
-    name,
-    nickname,
-    gender,
-    avatar,
-    mobile,
-    email,
-    homepage,
-    birthday,
-    height,
-    bloodType,
-    notice,
-    address,
-    lives,
-    tags,
-    luckyNumbers,
-    score,
-    userNo,
-    createdAt,
-    updatedAt,
-  },
+  formData: { id, name, createdAt, updatedAt },
 }) => {
   const [visible, setVisible] = useState(false);
 
@@ -106,54 +85,6 @@ const ViewModal = ({
         <FormItem {...formLayout} label="名称">
           {name}
         </FormItem>
-        <FormItem {...formLayout} label="昵称">
-          {nickname}
-        </FormItem>
-        <FormItem {...formLayout} label="性别">
-          {enumMaps['gender'][gender]}
-        </FormItem>
-        <FormItem {...formLayout} label="头像">
-          {avatar}
-        </FormItem>
-        <FormItem {...formLayout} label="手机">
-          {mobile}
-        </FormItem>
-        <FormItem {...formLayout} label="邮箱">
-          {email}
-        </FormItem>
-        <FormItem {...formLayout} label="主页">
-          {homepage}
-        </FormItem>
-        <FormItem {...formLayout} label="生日">
-          {birthday && moment(birthday).format('YYYY-MM-DD')}
-        </FormItem>
-        <FormItem {...formLayout} label="身高(cm)">
-          {height}
-        </FormItem>
-        <FormItem {...formLayout} label="血型(ABO)">
-          {enumMaps['bloodType'][bloodType]}
-        </FormItem>
-        <FormItem {...formLayout} label="备注">
-          {notice}
-        </FormItem>
-        <FormItem {...formLayout} label="地址">
-          {address && JSON.stringify(address)}
-        </FormItem>
-        <FormItem {...formLayout} label="生活轨迹">
-          {lives && JSON.stringify(lives)}
-        </FormItem>
-        <FormItem {...formLayout} label="标签">
-          {tags && tags.join(', ')}
-        </FormItem>
-        <FormItem {...formLayout} label="幸运数字">
-          {luckyNumbers && luckyNumbers.join(', ')}
-        </FormItem>
-        <FormItem {...formLayout} label="积分">
-          {score}
-        </FormItem>
-        <FormItem {...formLayout} label="编号">
-          {userNo}
-        </FormItem>
         <FormItem {...formLayout} label="创建时间">
           {moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}
         </FormItem>
@@ -171,26 +102,7 @@ const EditModal = Form.create()(
     modalTitle = '编辑',
     modalWith = 720,
     form,
-    formData: {
-      id,
-      name,
-      nickname,
-      gender,
-      avatar,
-      mobile,
-      email,
-      homepage,
-      birthday,
-      height,
-      bloodType,
-      notice,
-      intro,
-      address,
-      lives,
-      tags,
-      luckyNumbers,
-      score,
-    },
+    formData: { id, name },
     dispatch,
     handleRefresh,
   }) => {
@@ -214,7 +126,7 @@ const EditModal = Form.create()(
         setLoading(true);
         if (id) {
           dispatch({
-            type: 'users/update',
+            type: 'roles/update',
             payload: { id, ...fields },
             callback: () => {
               message.success('更新成功');
@@ -223,7 +135,7 @@ const EditModal = Form.create()(
           });
         } else {
           dispatch({
-            type: 'users/add',
+            type: 'roles/add',
             payload: fields,
             callback: () => {
               message.success('添加成功');
@@ -254,132 +166,6 @@ const EditModal = Form.create()(
                 rules: [{ required: true, message: '请输入！', min: 3, max: 20 }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
-            <FormItem label="昵称">
-              {form.getFieldDecorator('nickname', {
-                initialValue: nickname,
-                rules: [{ max: 64 }],
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="性别">
-              {form.getFieldDecorator('gender', {
-                initialValue: gender,
-              })(
-                <Select placeholder="请选择">
-                  {Object.entries(enumMaps['gender']).map(([key, val]) => (
-                    <Option key={key} value={Number.isNaN(parseInt(key)) ? key : parseInt(key)}>
-                      {val}
-                    </Option>
-                  ))}
-                </Select>,
-              )}
-            </FormItem>
-            <FormItem label="头像">
-              {form.getFieldDecorator('avatar', {
-                initialValue: avatar,
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="手机">
-              {form.getFieldDecorator('mobile', {
-                initialValue: mobile,
-                rules: [{ max: 16 }],
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="邮箱">
-              {form.getFieldDecorator('email', {
-                initialValue: email,
-                rules: [{ max: 16 }],
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="主页">
-              {form.getFieldDecorator('homepage', {
-                initialValue: homepage,
-                rules: [{ max: 16 }],
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="生日">
-              {form.getFieldDecorator('birthday', {
-                initialValue: birthday,
-              })(<DateSelect />)}
-            </FormItem>
-            <FormItem label="身高(cm)">
-              {form.getFieldDecorator('height', {
-                initialValue: height,
-              })(<InputNumber min={0.01} max={250} placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="血型">
-              {form.getFieldDecorator('bloodType', {
-                initialValue: bloodType,
-              })(
-                <Select placeholder="请选择">
-                  {Object.entries(enumMaps['bloodType']).map(([key, val]) => (
-                    <Option key={key} value={Number.isNaN(parseInt(key)) ? key : parseInt(key)}>
-                      {val}
-                    </Option>
-                  ))}
-                </Select>,
-              )}
-            </FormItem>
-            <FormItem label="备注">
-              {form.getFieldDecorator('notice', {
-                initialValue: notice,
-              })(<TextArea autosize placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="介绍">
-              {form.getFieldDecorator('intro', {
-                initialValue: intro || '',
-              })(<ReactQuill placeholder="请输入" />)}
-            </FormItem>
-            {/* <FormItem label="地址">
-              {form.getFieldDecorator('address', {
-                initialValue: address,
-              })(<JSONEdit placeholder="请输入" />)}
-            </FormItem> */}
-            <FormItem label="地址-省">
-              {form.getFieldDecorator('address.province', {
-                initialValue: address && address.province,
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="地址-市">
-              {form.getFieldDecorator('address.city', {
-                initialValue: address && address.city,
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="生活轨迹">
-              {form.getFieldDecorator('lives', {
-                initialValue: lives,
-              })(<JSONEdit placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="标签">
-              {form.getFieldDecorator('tags', {
-                initialValue: tags || undefined,
-              })(
-                <Select mode="tags" tokenSeparators={[',']}>
-                  {(tags || []).map((item, index) => (
-                    <Option key={index} value={item}>
-                      {item}
-                    </Option>
-                  ))}
-                </Select>,
-              )}
-            </FormItem>
-            <FormItem label="幸运数字">
-              {form.getFieldDecorator('luckyNumbers', {
-                initialValue: luckyNumbers || undefined,
-              })(
-                <Select mode="tags" tokenSeparators={[',']}>
-                  {(luckyNumbers || []).map((item, index) => (
-                    <Option key={index} value={item}>
-                      {item}
-                    </Option>
-                  ))}
-                </Select>,
-              )}
-            </FormItem>
-            <FormItem label="积分">
-              {form.getFieldDecorator('score', {
-                initialValue: score,
-              })(<InputNumber placeholder="请输入" parser={input => input && ~~input} />)}
-            </FormItem>
           </Form>
         </Modal>
       </span>
@@ -387,12 +173,12 @@ const EditModal = Form.create()(
   },
 );
 
-@connect(({ users, loading }) => ({
-  data: users,
-  loading: loading.models.users,
+@connect(({ roles, loading }) => ({
+  data: roles,
+  loading: loading.models.roles,
 }))
 @Form.create()
-class Users extends Component {
+class Roles extends Component {
   state = {
     selectedRows: [],
     formValues: {},
@@ -401,7 +187,7 @@ class Users extends Component {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'users/fetch',
+      type: 'roles/fetch',
     });
   }
 
@@ -421,7 +207,7 @@ class Users extends Component {
     }
 
     dispatch({
-      type: 'users/fetch',
+      type: 'roles/fetch',
       payload: params,
     });
     this.setState({ selectedRows: [] });
@@ -434,7 +220,7 @@ class Users extends Component {
       formValues: {},
     });
     dispatch({
-      type: 'users/fetch',
+      type: 'roles/fetch',
       payload: {},
     });
   };
@@ -443,7 +229,7 @@ class Users extends Component {
     const { dispatch } = this.props;
     const { formValues } = this.state;
     dispatch({
-      type: 'users/fetch',
+      type: 'roles/fetch',
       payload: {
         ...formValues,
       },
@@ -469,7 +255,7 @@ class Users extends Component {
         formValues: values,
       });
       dispatch({
-        type: 'users/fetch',
+        type: 'roles/fetch',
         payload: values,
       });
     });
@@ -478,7 +264,7 @@ class Users extends Component {
   handleDelete = id => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'users/remove',
+      type: 'roles/remove',
       payload: { id },
       callback: () => {
         message.success('删除成功');
@@ -492,7 +278,7 @@ class Users extends Component {
     const { selectedRows } = this.state;
     if (!selectedRows.length) return;
     dispatch({
-      type: 'users/removeBulk',
+      type: 'roles/removeBulk',
       payload: {
         ids: selectedRows.map(item => item.id),
       },
@@ -516,21 +302,8 @@ class Users extends Component {
           }}
         >
           <Col md={6} sm={24}>
-            <FormItem label="姓名">
+            <FormItem label="名称">
               {getFieldDecorator('name')(<Input placeholder="请输入" />)}
-            </FormItem>
-          </Col>
-          <Col md={6} sm={24}>
-            <FormItem label="性别">
-              {getFieldDecorator('gender')(
-                <Select allowClear placeholder="请选择">
-                  {Object.entries(enumMaps['gender']).map(([key, val]) => (
-                    <Option value={key} key={key}>
-                      {val}
-                    </Option>
-                  ))}
-                </Select>,
-              )}
             </FormItem>
           </Col>
           <Col md={6} sm={24}>
@@ -558,34 +331,9 @@ class Users extends Component {
     const { selectedRows } = this.state;
     const columns = [
       {
-        title: '姓名',
+        title: '名称',
         dataIndex: 'name',
         sorter: true,
-      },
-      {
-        title: '性别',
-        dataIndex: 'gender',
-        filters: Object.entries(enumMaps['gender']).map(([key, val]) => ({
-          text: val,
-          value: key,
-        })),
-        render: val => enumMaps['gender'][val],
-      },
-      {
-        title: '生日',
-        dataIndex: 'birthday',
-        sorter: true,
-        render: val => val && moment(val).format('YYYY-MM-DD'),
-      },
-      {
-        title: '地址',
-        dataIndex: 'address',
-        render: val => val && JSON.stringify(val),
-      },
-      {
-        title: '标签',
-        dataIndex: 'tags',
-        render: val => val && val.join(', '),
       },
       {
         title: '创建时间',
@@ -657,4 +405,4 @@ class Users extends Component {
   }
 }
 
-export default Users;
+export default Roles;

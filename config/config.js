@@ -123,11 +123,16 @@ export default {
                   name: 'users',
                   component: './dashboard/users',
                 },
-                // {
-                //   path: "/dashboard/roles",
-                //   name: "roles",
-                //   component: './dashboard/roles',
-                // },
+                {
+                  path: "/dashboard/auths",
+                  name: "auths",
+                  component: './dashboard/auths',
+                },
+                {
+                  path: "/dashboard/roles",
+                  name: "roles",
+                  component: './dashboard/roles',
+                },
               ],
             },
             {
