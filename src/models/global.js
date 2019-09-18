@@ -1,11 +1,20 @@
-import { queryNotices } from '@/services/user';
+import { queryNotices, queryMenus } from '@/services/user';
 const GlobalModel = {
   namespace: 'global',
   state: {
     collapsed: false,
     notices: [],
+    menus: [],
   },
   effects: {
+    *fetchMenus({ payload }, { call, put, select }) {
+      const data = yield call(queryMenus, payload);
+      yield put({
+        type: 'saveMenus',
+        payload: data,
+      });
+    },
+
     *fetchNotices(_, { call, put, select }) {
       const data = yield call(queryNotices);
       yield put({
@@ -76,6 +85,13 @@ const GlobalModel = {
       { payload },
     ) {
       return { ...state, collapsed: payload };
+    },
+
+    saveMenus(state, { payload }) {
+      return {
+        ...state,
+        menus: payload,
+      };
     },
 
     saveNotices(state, { payload }) {

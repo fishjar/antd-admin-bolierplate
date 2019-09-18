@@ -1,7 +1,7 @@
 import { routerRedux } from 'dva/router';
 import { stringify } from 'querystring';
-import { fakeAccountLogin, getFakeCaptcha } from '@/services/login';
-import { setAuthority } from '@/utils/authority';
+import { fakeAccountLogin, getFakeCaptcha, accountLogin } from '@/services/login';
+import { setAuthority, setAuthentication } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 const Model = {
   namespace: 'login',
@@ -10,7 +10,8 @@ const Model = {
   },
   effects: {
     *login({ payload }, { call, put }) {
-      const response = yield call(fakeAccountLogin, payload);
+      // const response = yield call(fakeAccountLogin, payload);
+      const response = yield call(accountLogin, payload);
       yield put({
         type: 'changeLoginStatus',
         payload: response,
@@ -23,10 +24,8 @@ const Model = {
 
         if (redirect) {
           const redirectUrlParams = new URL(redirect);
-
           if (redirectUrlParams.origin === urlParams.origin) {
             redirect = redirect.substr(urlParams.origin.length);
-
             if (redirect.match(/^\/.*#/)) {
               redirect = redirect.substr(redirect.indexOf('#') + 1);
             }
@@ -37,6 +36,7 @@ const Model = {
         }
 
         yield put(routerRedux.replace(redirect || '/'));
+        // window.location.href = redirect || '/';
       }
     },
 
@@ -46,6 +46,16 @@ const Model = {
 
     *logout(_, { put }) {
       const { redirect } = getPageQuery(); // redirect
+
+      yield put({
+        type: 'changeLoginStatus',
+        payload: {
+          currentAuthority: ['guest'],
+          authToken: null,
+          status: null,
+          type: null,
+        },
+      }); // Logout
 
       if (window.location.pathname !== '/user/login' && !redirect) {
         yield put(
@@ -62,6 +72,7 @@ const Model = {
   reducers: {
     changeLoginStatus(state, { payload }) {
       setAuthority(payload.currentAuthority);
+      setAuthentication(payload.authToken);
       return { ...state, status: payload.status, type: payload.type };
     },
   },

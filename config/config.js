@@ -114,6 +114,23 @@ export default {
               component: './Welcome',
             },
             {
+              path: '/dashboard',
+              name: 'dashboard',
+              icon: 'dashboard',
+              routes: [
+                {
+                  path: '/dashboard/users',
+                  name: 'users',
+                  component: './dashboard/users',
+                },
+                // {
+                //   path: "/dashboard/roles",
+                //   name: "roles",
+                //   component: './dashboard/roles',
+                // },
+              ],
+            },
+            {
               component: './404',
             },
           ],
@@ -169,6 +186,7 @@ export default {
     basePath: '/',
   },
   chainWebpack: webpackPlugin,
+
   /*
   proxy: {
     '/server/api/': {
@@ -178,4 +196,13 @@ export default {
     },
   },
   */
+  proxy: {
+    '/server/api/': {
+      target: 'http://127.0.0.1:4000/',
+      changeOrigin: true,
+      pathRewrite: {
+        '^/server/api': '',
+      },
+    },
+  },
 };

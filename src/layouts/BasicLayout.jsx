@@ -49,7 +49,8 @@ const footerRender = (_, defaultDom) => {
 };
 
 const BasicLayout = props => {
-  const { dispatch, children, settings } = props;
+  const { dispatch, children, settings, menus = [], status } = props;
+
   /**
    * constructor
    */
@@ -61,6 +62,12 @@ const BasicLayout = props => {
       });
       dispatch({
         type: 'settings/getSetting',
+      });
+      dispatch({
+        type: 'global/fetchMenus',
+        payload: {
+          format: true,
+        },
       });
     }
   }, []);
@@ -107,7 +114,8 @@ const BasicLayout = props => {
         );
       }}
       footerRender={footerRender}
-      menuDataRender={menuDataRender}
+      // menuDataRender={menuDataRender}
+      menuDataRender={() => menus}
       formatMessage={formatMessage}
       rightContentRender={rightProps => <RightContent {...rightProps} />}
       {...props}
@@ -120,5 +128,7 @@ const BasicLayout = props => {
 
 export default connect(({ global, settings }) => ({
   collapsed: global.collapsed,
+  menus: global.menus,
+  status: global.status,
   settings,
 }))(BasicLayout);
