@@ -112,7 +112,8 @@ const EditModal = Form.create()(
     const [loading, setLoading] = useState(false);
     const [users, setUsers] = useState([]);
 
-    useEffect(() => {
+    const handleShow = () => {
+      setVisible(true);
       dispatch({
         type: 'users/fetch',
         payload: {
@@ -122,10 +123,6 @@ const EditModal = Form.create()(
           setUsers(res.list);
         },
       });
-    }, []);
-
-    const handleShow = () => {
-      setVisible(true);
     };
 
     const handleHide = () => {

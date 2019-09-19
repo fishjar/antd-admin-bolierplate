@@ -28,7 +28,7 @@ import {
   Modal,
 } from 'antd';
 
-const modelKey = 'menus';
+const modelKey = 'usergroups';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -57,7 +57,7 @@ const ViewModal = ({
   children,
   modalTitle = '编辑',
   modalWith = 720,
-  formData: { id, name, parent, path, icon, sort, createdAt, updatedAt },
+  formData: { id, user, group, level, joinTime, createdAt, updatedAt },
 }) => {
   const [visible, setVisible] = useState(false);
 
@@ -84,20 +84,17 @@ const ViewModal = ({
         <FormItem {...formLayout} label="ID">
           {id}
         </FormItem>
-        <FormItem {...formLayout} label="名称">
-          {name}
+        <FormItem {...formLayout} label="关联用户">
+          {user.name}
         </FormItem>
-        <FormItem {...formLayout} label="父级名称">
-          {parent && parent.name}
+        <FormItem {...formLayout} label="关联组">
+          {group.name}
         </FormItem>
-        <FormItem {...formLayout} label="路径">
-          {path}
+        <FormItem {...formLayout} label="级别">
+          {level}
         </FormItem>
-        <FormItem {...formLayout} label="图标">
-          {icon}
-        </FormItem>
-        <FormItem {...formLayout} label="排序">
-          {sort}
+        <FormItem {...formLayout} label="加入时间">
+          {moment(joinTime).format('YYYY-MM-DD HH:mm:ss')}
         </FormItem>
         <FormItem {...formLayout} label="创建时间">
           {moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}
@@ -116,23 +113,33 @@ const EditModal = Form.create()(
     modalTitle = '编辑',
     modalWith = 720,
     form,
-    formData: { id, name, parentId, path, icon, sort },
+    formData: { id, user, userId, group, groupId, level, joinTime },
     dispatch,
     handleRefresh,
   }) => {
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [menus, setMenus] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [groups, setGroups] = useState([]);
 
     const handleShow = () => {
       setVisible(true);
       dispatch({
-        type: 'menus/fetch',
+        type: 'users/fetch',
         payload: {
           pageSize: 0,
         },
         callback: res => {
-          setMenus(res.list);
+          setUsers(res.list);
+        },
+      });
+      dispatch({
+        type: 'groups/fetch',
+        payload: {
+          pageSize: 0,
+        },
+        callback: res => {
+          setGroups(res.list);
         },
       });
     };
@@ -151,7 +158,12 @@ const EditModal = Form.create()(
         if (id) {
           dispatch({
             type: `${modelKey}/update`,
-            payload: { id, ...fields, parent: menus.find(item => item.id === fields.parentId) },
+            payload: {
+              id,
+              ...fields,
+              user: users.find(item => item.id === fields.userId),
+              group: groups.find(item => item.id === fields.groupId),
+            },
             callback: () => {
               message.success('更新成功');
               handleHide();
@@ -184,18 +196,13 @@ const EditModal = Form.create()(
           confirmLoading={loading}
         >
           <Form {...formLayout} onSubmit={handleOk}>
-            <FormItem label="名称">
-              {form.getFieldDecorator('name', {
-                initialValue: name,
-                rules: [{ required: true, message: '请输入！', min: 3, max: 20 }],
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="父菜单">
-              {form.getFieldDecorator('parentId', {
-                initialValue: parentId,
+            <FormItem label="关联用户">
+              {form.getFieldDecorator('userId', {
+                initialValue: userId,
+                rules: [{ required: true, message: '请选择！' }],
               })(
-                <Select placeholder="请选择" allowClear>
-                  {menus.map(item => (
+                <Select placeholder="请选择">
+                  {users.map(item => (
                     <Option key={item.id} value={item.id}>
                       {item.name}
                     </Option>
@@ -203,22 +210,30 @@ const EditModal = Form.create()(
                 </Select>,
               )}
             </FormItem>
-            <FormItem label="路径">
-              {form.getFieldDecorator('path', {
-                initialValue: path,
-                rules: [{ required: true, message: '请输入！' }],
-              })(<Input placeholder="请输入" />)}
+            <FormItem label="关联组">
+              {form.getFieldDecorator('groupId', {
+                initialValue: groupId,
+                rules: [{ required: true, message: '请选择！' }],
+              })(
+                <Select placeholder="请选择">
+                  {groups.map(item => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>,
+              )}
             </FormItem>
-            <FormItem label="图标">
-              {form.getFieldDecorator('icon', {
-                initialValue: icon,
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="排序">
-              {form.getFieldDecorator('sort', {
-                initialValue: sort,
+            <FormItem label="级别">
+              {form.getFieldDecorator('level', {
+                initialValue: level,
                 rules: [{ required: true, message: '请输入！' }],
               })(<InputNumber placeholder="请输入" parser={input => input && ~~input} />)}
+            </FormItem>
+            <FormItem label="加入时间">
+              {form.getFieldDecorator('joinTime', {
+                initialValue: joinTime,
+              })(<DateSelect showTime />)}
             </FormItem>
           </Form>
         </Modal>
@@ -377,28 +392,25 @@ class ModelTable extends Component {
     const { selectedRows } = this.state;
     const columns = [
       {
-        title: '名称',
-        dataIndex: 'name',
+        title: '关联用户',
+        dataIndex: 'userId',
+        render: (_, record) => record.user.name,
+      },
+      {
+        title: '关联组',
+        dataIndex: 'groupId',
+        render: (_, record) => record.group.name,
+      },
+      {
+        title: '级别',
+        dataIndex: 'level',
         sorter: true,
       },
       {
-        title: '父级名称',
-        dataIndex: 'parentId',
-        render: (_, record) => record.parent && record.parent.name,
-      },
-      {
-        title: '路径',
-        dataIndex: 'path',
+        title: '加入时间',
+        dataIndex: 'joinTime',
         sorter: true,
-      },
-      {
-        title: '图标',
-        dataIndex: 'icon',
-      },
-      {
-        title: '排序',
-        dataIndex: 'sort',
-        sorter: true,
+        render: val => moment(val).format('YYYY-MM-DD HH:mm:ss'),
       },
       {
         title: '创建时间',
