@@ -133,6 +133,11 @@ export default {
                   name: "roles",
                   component: './dashboard/roles',
                 },
+                {
+                  path: "/dashboard/groups",
+                  name: "groups",
+                  component: './dashboard/groups',
+                },
               ],
             },
             {

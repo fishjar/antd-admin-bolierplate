@@ -28,6 +28,8 @@ import {
   Modal,
 } from 'antd';
 
+const modelKey = 'auths';
+
 const FormItem = Form.Item;
 const { Option } = Select;
 const { TextArea } = Input;
@@ -260,26 +262,31 @@ const EditModal = Form.create()(
   },
 );
 
-@connect(({ auths, loading }) => ({
-  data: auths,
-  loading: loading.models.auths,
+@connect(({ [modelKey]: data, loading }) => ({
+  data,
+  loading: loading.models['modelKey'],
 }))
 @Form.create()
-class Auths extends Component {
+class ModelTable extends Component {
   state = {
     selectedRows: [],
     formValues: {},
   };
 
   componentDidMount() {
+    this.fetchData();
+  }
+
+  fetchData(params, callback) {
     const { dispatch } = this.props;
     dispatch({
-      type: 'auths/fetch',
+      type: `${modelKey}/fetch`,
+      payload: params,
+      callback,
     });
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
     const { formValues } = this.state;
 
     const params = {
@@ -293,35 +300,25 @@ class Auths extends Component {
       params.sorter = `${sorter.field}__${sorter.order.slice(0, -3)}`;
     }
 
-    dispatch({
-      type: 'auths/fetch',
-      payload: params,
+    this.fetchData(params, () => {
+      this.setState({ selectedRows: [] });
     });
-    this.setState({ selectedRows: [] });
   };
 
   handleFormReset = () => {
-    const { form, dispatch } = this.props;
+    const { form } = this.props;
     form.resetFields();
     this.setState({
       formValues: {},
     });
-    dispatch({
-      type: 'auths/fetch',
-      payload: {},
-    });
+    this.fetchData();
   };
 
   handleRefresh = () => {
-    const { dispatch } = this.props;
     const { formValues } = this.state;
-    dispatch({
-      type: 'auths/fetch',
-      payload: {
-        ...formValues,
-      },
+    this.fetchData(formValues, () => {
+      this.setState({ selectedRows: [] });
     });
-    this.setState({ selectedRows: [] });
   };
 
   handleSelectRows = rows => {
@@ -332,7 +329,7 @@ class Auths extends Component {
 
   handleSearch = e => {
     e.preventDefault();
-    const { dispatch, form } = this.props;
+    const { form } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       const values = {
@@ -341,17 +338,14 @@ class Auths extends Component {
       this.setState({
         formValues: values,
       });
-      dispatch({
-        type: 'auths/fetch',
-        payload: values,
-      });
+      this.fetchData(values);
     });
   };
 
   handleDelete = id => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'auths/remove',
+      type: `${modelKey}/remove`,
       payload: { id },
       callback: () => {
         message.success('删除成功');
@@ -365,7 +359,7 @@ class Auths extends Component {
     const { selectedRows } = this.state;
     if (!selectedRows.length) return;
     dispatch({
-      type: 'auths/removeBulk',
+      type: `${modelKey}/removeBulk`,
       payload: {
         ids: selectedRows.map(item => item.id),
       },
@@ -536,4 +530,4 @@ class Auths extends Component {
   }
 }
 
-export default Auths;
+export default ModelTable;

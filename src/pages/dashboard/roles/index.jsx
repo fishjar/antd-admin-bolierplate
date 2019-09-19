@@ -28,6 +28,8 @@ import {
   Modal,
 } from 'antd';
 
+const modelKey = 'roles';
+
 const FormItem = Form.Item;
 const { Option } = Select;
 const { TextArea } = Input;
@@ -173,26 +175,31 @@ const EditModal = Form.create()(
   },
 );
 
-@connect(({ roles, loading }) => ({
-  data: roles,
-  loading: loading.models.roles,
+@connect(({ [modelKey]: data, loading }) => ({
+  data,
+  loading: loading.models[modelKey],
 }))
 @Form.create()
-class Roles extends Component {
+class ModelTable extends Component {
   state = {
     selectedRows: [],
     formValues: {},
   };
 
   componentDidMount() {
+    this.fetchData();
+  }
+
+  fetchData(params, callback) {
     const { dispatch } = this.props;
     dispatch({
-      type: 'roles/fetch',
+      type: `${modelKey}/fetch`,
+      payload: params,
+      callback,
     });
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
     const { formValues } = this.state;
 
     const params = {
@@ -206,35 +213,25 @@ class Roles extends Component {
       params.sorter = `${sorter.field}__${sorter.order.slice(0, -3)}`;
     }
 
-    dispatch({
-      type: 'roles/fetch',
-      payload: params,
+    this.fetchData(params, () => {
+      this.setState({ selectedRows: [] });
     });
-    this.setState({ selectedRows: [] });
   };
 
   handleFormReset = () => {
-    const { form, dispatch } = this.props;
+    const { form } = this.props;
     form.resetFields();
     this.setState({
       formValues: {},
     });
-    dispatch({
-      type: 'roles/fetch',
-      payload: {},
-    });
+    this.fetchData();
   };
 
   handleRefresh = () => {
-    const { dispatch } = this.props;
     const { formValues } = this.state;
-    dispatch({
-      type: 'roles/fetch',
-      payload: {
-        ...formValues,
-      },
+    this.fetchData(formValues, () => {
+      this.setState({ selectedRows: [] });
     });
-    this.setState({ selectedRows: [] });
   };
 
   handleSelectRows = rows => {
@@ -245,7 +242,7 @@ class Roles extends Component {
 
   handleSearch = e => {
     e.preventDefault();
-    const { dispatch, form } = this.props;
+    const { form } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       const values = {
@@ -254,17 +251,14 @@ class Roles extends Component {
       this.setState({
         formValues: values,
       });
-      dispatch({
-        type: 'roles/fetch',
-        payload: values,
-      });
+      this.fetchData(values);
     });
   };
 
   handleDelete = id => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'roles/remove',
+      type: `${modelKey}/remove`,
       payload: { id },
       callback: () => {
         message.success('删除成功');
@@ -278,7 +272,7 @@ class Roles extends Component {
     const { selectedRows } = this.state;
     if (!selectedRows.length) return;
     dispatch({
-      type: 'roles/removeBulk',
+      type: `${modelKey}/removeBulk`,
       payload: {
         ids: selectedRows.map(item => item.id),
       },
@@ -405,4 +399,4 @@ class Roles extends Component {
   }
 }
 
-export default Roles;
+export default ModelTable;

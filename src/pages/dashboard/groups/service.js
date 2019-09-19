@@ -1,6 +1,6 @@
 import request from '@/utils/request';
 
-const modelKey = "role";
+const modelKey = "group";
 
 export async function findOne(params) {
   return request(`/server/api/${modelKey}`, {
