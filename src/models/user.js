@@ -13,13 +13,14 @@ const UserModel = {
       });
     },
 
-    *fetchCurrent(_, { call, put }) {
+    *fetchCurrent({ callback }, { call, put }) {
       // const response = yield call(queryCurrent);
       const response = yield call(queryCurrentUser);
       yield put({
         type: 'saveCurrentUser',
         payload: response,
       });
+      callback && callback(response);
     },
   },
   reducers: {

@@ -49,7 +49,7 @@ const footerRender = (_, defaultDom) => {
 };
 
 const BasicLayout = props => {
-  const { dispatch, children, settings, menus = [], status } = props;
+  const { dispatch, children, settings, menus = [] } = props;
 
   /**
    * constructor
@@ -58,16 +58,7 @@ const BasicLayout = props => {
   useEffect(() => {
     if (dispatch) {
       dispatch({
-        type: 'user/fetchCurrent',
-      });
-      dispatch({
         type: 'settings/getSetting',
-      });
-      dispatch({
-        type: 'global/fetchMenus',
-        payload: {
-          format: true,
-        },
       });
     }
   }, []);
@@ -129,6 +120,6 @@ const BasicLayout = props => {
 export default connect(({ global, settings }) => ({
   collapsed: global.collapsed,
   menus: global.menus,
-  status: global.status,
+  // status: global.status,
   settings,
 }))(BasicLayout);

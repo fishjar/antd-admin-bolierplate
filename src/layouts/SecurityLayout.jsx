@@ -5,39 +5,57 @@ import PageLoading from '@/components/PageLoading';
 
 class SecurityLayout extends React.Component {
   state = {
-    isReady: false,
+    isUserReady: false,
+    isMenuReady: false,
   };
 
   componentDidMount() {
-    this.setState({
-      isReady: true,
-    });
     const { dispatch } = this.props;
-
     if (dispatch) {
       dispatch({
         type: 'user/fetchCurrent',
+        callback: () => {
+          this.setState({
+            isUserReady: true,
+          });
+        },
+      });
+      dispatch({
+        type: 'global/fetchMenus',
+        payload: {
+          format: true,
+        },
+        callback: () => {
+          this.setState({
+            isMenuReady: true,
+          });
+        },
       });
     }
   }
 
   render() {
-    const { isReady } = this.state;
-    const { children, loading, currentUser } = this.props;
+    const { isUserReady, isMenuReady } = this.state;
+    const { children, loading, currentUser, status } = this.props;
 
-    if ((!currentUser.id && loading) || !isReady) {
+    if ((!currentUser.id && loading) || !isUserReady || !isMenuReady) {
       return <PageLoading />;
     }
 
-    if (!currentUser.id) {
-      return <Redirect to="/user/login"></Redirect>;
-    }
+    // if (status !== 'ok') {
+    //   return <Redirect to="/user/login"></Redirect>;
+    // }
+
+    // if (!currentUser.id) {
+    //   return <Redirect to="/user/login"></Redirect>;
+    // }
 
     return children;
   }
 }
 
-export default connect(({ user, loading }) => ({
+export default connect(({ user, login, loading }) => ({
   currentUser: user.currentUser,
   loading: loading.models.user,
+  status: login.status,
 }))(SecurityLayout);

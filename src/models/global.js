@@ -7,12 +7,13 @@ const GlobalModel = {
     menus: [],
   },
   effects: {
-    *fetchMenus({ payload }, { call, put, select }) {
-      const data = yield call(queryMenus, payload);
+    *fetchMenus({ payload, callback }, { call, put, select }) {
+      const response = yield call(queryMenus, payload);
       yield put({
         type: 'saveMenus',
-        payload: data,
+        payload: response,
       });
+      callback && callback(response);
     },
 
     *fetchNotices(_, { call, put, select }) {
