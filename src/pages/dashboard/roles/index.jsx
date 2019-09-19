@@ -5,6 +5,7 @@ import moment from 'moment';
 import StandardTable from '@/components/StandardTable';
 import DateSelect from '@/components/DateSelect';
 import JSONEdit from '@/components/JSONEdit';
+import TreeNodeSelect from '@/components/TreeNodeSelect';
 import styles from './style.less';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -26,6 +27,8 @@ import {
   message,
   Popconfirm,
   Modal,
+  TreeSelect,
+  Tree,
 } from 'antd';
 
 const modelKey = 'roles';
@@ -33,6 +36,7 @@ const modelKey = 'roles';
 const FormItem = Form.Item;
 const { Option } = Select;
 const { TextArea } = Input;
+const { TreeNode } = Tree;
 
 const formLayout = {
   labelCol: { span: 5 },
@@ -104,15 +108,37 @@ const EditModal = Form.create()(
     modalTitle = '编辑',
     modalWith = 720,
     form,
-    formData: { id, name },
+    formData: { id, name, menus = [] },
     dispatch,
     handleRefresh,
   }) => {
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [allMenus, setAllMenus] = useState([]);
+
+    const menuIds = menus.map(item => item.id);
+
+    // const buildMenuTree = (menus, pid) =>
+    //   menus
+    //     .filter(item => item.parentId === pid)
+    //     .map(item => ({
+    //       title: item.name,
+    //       value: item.id,
+    //       key: item.id,
+    //       children: buildMenuTree(menus, item.id),
+    //     }));
 
     const handleShow = () => {
       setVisible(true);
+      dispatch({
+        type: 'menus/fetch',
+        payload: {
+          pageSize: 0,
+        },
+        callback: res => {
+          setAllMenus(res.list);
+        },
+      });
     };
 
     const handleHide = () => {
@@ -129,7 +155,11 @@ const EditModal = Form.create()(
         if (id) {
           dispatch({
             type: 'roles/update',
-            payload: { id, ...fields },
+            payload: {
+              id,
+              ...fields,
+              menus: fields.menuIds.map(key => allMenus.find(item => item.id === key)),
+            },
             callback: () => {
               message.success('更新成功');
               handleHide();
@@ -168,6 +198,13 @@ const EditModal = Form.create()(
                 rules: [{ required: true, message: '请输入！', min: 3, max: 20 }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
+            {allMenus.length > 0 && (
+              <FormItem label="关联菜单">
+                {form.getFieldDecorator('menuIds', {
+                  initialValue: menuIds,
+                })(<TreeNodeSelect allMenus={allMenus} />)}
+              </FormItem>
+            )}
           </Form>
         </Modal>
       </span>
