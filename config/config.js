@@ -138,6 +138,11 @@ export default {
                   name: "groups",
                   component: './dashboard/groups',
                 },
+                {
+                  path: "/dashboard/menus",
+                  name: "menus",
+                  component: './dashboard/menus',
+                },
               ],
             },
             {
