@@ -57,7 +57,7 @@ const ViewModal = ({
   children,
   modalTitle = '编辑',
   modalWith = 720,
-  formData: { id, name, createdAt, updatedAt },
+  formData: { id, name, leader, menbers, createdAt, updatedAt },
 }) => {
   const [visible, setVisible] = useState(false);
 
@@ -87,6 +87,12 @@ const ViewModal = ({
         <FormItem {...formLayout} label="名称">
           {name}
         </FormItem>
+        <FormItem {...formLayout} label="队长">
+          {leader.name}
+        </FormItem>
+        <FormItem {...formLayout} label="队员">
+          {menbers.map(item => item.name).join(', ')}
+        </FormItem>
         <FormItem {...formLayout} label="创建时间">
           {moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}
         </FormItem>
@@ -104,13 +110,15 @@ const EditModal = Form.create()(
     modalTitle = '编辑',
     modalWith = 720,
     form,
-    formData: { id, name, leaderId },
+    formData: { id, name, leaderId, menbers = [] },
     dispatch,
     handleRefresh,
   }) => {
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [users, setUsers] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
+
+    const menberIds = menbers.map(item => item.id);
 
     const handleShow = () => {
       setVisible(true);
@@ -120,7 +128,7 @@ const EditModal = Form.create()(
           pageSize: 0,
         },
         callback: res => {
-          setUsers(res.list);
+          setAllUsers(res.list);
         },
       });
     };
@@ -139,7 +147,12 @@ const EditModal = Form.create()(
         if (id) {
           dispatch({
             type: `${modelKey}/update`,
-            payload: { id, ...fields, leader: users.find(item => item.id === fields.leaderId) },
+            payload: {
+              id,
+              ...fields,
+              leader: allUsers.find(item => item.id === fields.leaderId),
+              menbers: fields.menberIds.map(key => allUsers.find(item => item.id === key)),
+            },
             callback: () => {
               message.success('更新成功');
               handleHide();
@@ -184,7 +197,27 @@ const EditModal = Form.create()(
                 rules: [{ required: true, message: '请选择！' }],
               })(
                 <Select placeholder="请选择">
-                  {users.map(item => (
+                  {allUsers.map(item => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>,
+              )}
+            </FormItem>
+            <FormItem label="队员">
+              {form.getFieldDecorator('menberIds', {
+                initialValue: menberIds,
+              })(
+                <Select
+                  mode="multiple"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  placeholder="请选择"
+                >
+                  {allUsers.map(item => (
                     <Option key={item.id} value={item.id}>
                       {item.name}
                     </Option>
@@ -355,6 +388,11 @@ class ModelTable extends Component {
         title: '队长',
         dataIndex: 'leaderId',
         render: (_, record) => record.leader.name,
+      },
+      {
+        title: '队员',
+        dataIndex: 'menbers',
+        render: val => val && val.map(item => item.name).join(', '),
       },
       {
         title: '创建时间',

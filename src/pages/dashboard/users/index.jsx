@@ -78,6 +78,7 @@ const ViewModal = ({
     userNo,
     createdAt,
     updatedAt,
+    auths = [],
     roles = [],
     groups = [],
     friends = [],
@@ -110,6 +111,13 @@ const ViewModal = ({
         </FormItem>
         <FormItem {...formLayout} label="名称">
           {name}
+        </FormItem>
+        <FormItem {...formLayout} label="绑定帐号">
+          {auths.map(item => (
+            <div key={item.id}>{`帐号类型: ${item.authType}, 帐号名称: ${item.authName} (${
+              item.isEnabled ? '启用' : '禁用'
+            })`}</div>
+          ))}
         </FormItem>
         <FormItem {...formLayout} label="角色">
           {roles.map(item => item.name).join(', ')}
@@ -309,7 +317,14 @@ const EditModal = Form.create()(
               {form.getFieldDecorator('roleIds', {
                 initialValue: roleIds,
               })(
-                <Select mode="multiple" placeholder="请选择">
+                <Select
+                  mode="multiple"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  placeholder="请选择"
+                >
                   {allRoles.map(item => (
                     <Option key={item.id} value={item.id}>
                       {item.name}
@@ -322,7 +337,14 @@ const EditModal = Form.create()(
               {form.getFieldDecorator('groupIds', {
                 initialValue: groupIds,
               })(
-                <Select mode="multiple" placeholder="请选择">
+                <Select
+                  mode="multiple"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  placeholder="请选择"
+                >
                   {allGroups.map(item => (
                     <Option key={item.id} value={item.id}>
                       {item.name}
@@ -335,7 +357,14 @@ const EditModal = Form.create()(
               {form.getFieldDecorator('friendIds', {
                 initialValue: friendIds,
               })(
-                <Select mode="multiple" placeholder="请选择">
+                <Select
+                  mode="multiple"
+                  optionFilterProp="children"
+                  filterOption={(input, option) =>
+                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  }
+                  placeholder="请选择"
+                >
                   {allFriends.map(item => (
                     <Option key={item.id} value={item.id}>
                       {item.name}
