@@ -28,7 +28,7 @@ import {
   Modal,
 } from 'antd';
 
-const modelKey = "users";
+const modelKey = 'users';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -78,6 +78,9 @@ const ViewModal = ({
     userNo,
     createdAt,
     updatedAt,
+    roles = [],
+    groups = [],
+    friends = [],
   },
 }) => {
   const [visible, setVisible] = useState(false);
@@ -107,6 +110,15 @@ const ViewModal = ({
         </FormItem>
         <FormItem {...formLayout} label="名称">
           {name}
+        </FormItem>
+        <FormItem {...formLayout} label="角色">
+          {roles.map(item => item.name).join(', ')}
+        </FormItem>
+        <FormItem {...formLayout} label="组">
+          {groups.map(item => item.name).join(', ')}
+        </FormItem>
+        <FormItem {...formLayout} label="朋友">
+          {friends.map(item => item.name).join(', ')}
         </FormItem>
         <FormItem {...formLayout} label="昵称">
           {nickname}
@@ -192,15 +204,46 @@ const EditModal = Form.create()(
       tags,
       luckyNumbers,
       score,
+      roles = [],
+      groups = [],
+      friends = [],
     },
     dispatch,
     handleRefresh,
   }) => {
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [allRoles, setAllRoles] = useState([]);
+    const [allGroups, setAllGroups] = useState([]);
+    const [allFriends, setAllFriends] = useState([]);
+
+    const roleIds = roles.map(item => item.id);
+    const groupIds = groups.map(item => item.id);
+    const friendIds = friends.map(item => item.id);
 
     const handleShow = () => {
       setVisible(true);
+      dispatch({
+        type: 'roles/fetch',
+        payload: { pageSize: 0 },
+        callback: res => {
+          setAllRoles(res.list);
+        },
+      });
+      dispatch({
+        type: 'groups/fetch',
+        payload: { pageSize: 0 },
+        callback: res => {
+          setAllGroups(res.list);
+        },
+      });
+      dispatch({
+        type: 'users/fetch',
+        payload: { pageSize: 0 },
+        callback: res => {
+          setAllFriends(res.list);
+        },
+      });
     };
 
     const handleHide = () => {
@@ -217,7 +260,13 @@ const EditModal = Form.create()(
         if (id) {
           dispatch({
             type: 'users/update',
-            payload: { id, ...fields },
+            payload: {
+              id,
+              ...fields,
+              roles: fields.roleIds.map(key => allRoles.find(item => item.id === key)),
+              groups: fields.groupIds.map(key => allGroups.find(item => item.id === key)),
+              friends: fields.friendIds.map(key => allFriends.find(item => item.id === key)),
+            },
             callback: () => {
               message.success('更新成功');
               handleHide();
@@ -255,6 +304,45 @@ const EditModal = Form.create()(
                 initialValue: name,
                 rules: [{ required: true, message: '请输入！', min: 3, max: 20 }],
               })(<Input placeholder="请输入" />)}
+            </FormItem>
+            <FormItem label="关联角色">
+              {form.getFieldDecorator('roleIds', {
+                initialValue: roleIds,
+              })(
+                <Select mode="multiple" placeholder="请选择">
+                  {allRoles.map(item => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>,
+              )}
+            </FormItem>
+            <FormItem label="关联组">
+              {form.getFieldDecorator('groupIds', {
+                initialValue: groupIds,
+              })(
+                <Select mode="multiple" placeholder="请选择">
+                  {allGroups.map(item => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>,
+              )}
+            </FormItem>
+            <FormItem label="关联朋友">
+              {form.getFieldDecorator('friendIds', {
+                initialValue: friendIds,
+              })(
+                <Select mode="multiple" placeholder="请选择">
+                  {allFriends.map(item => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>,
+              )}
             </FormItem>
             <FormItem label="昵称">
               {form.getFieldDecorator('nickname', {
@@ -404,14 +492,16 @@ class ModelTable extends Component {
     this.fetchData();
   }
 
-  fetchData(params, callback) {
+  fetchData = params => {
     const { dispatch } = this.props;
     dispatch({
       type: `${modelKey}/fetch`,
       payload: params,
-      callback,
+      callback: () => {
+        this.setState({ selectedRows: [] });
+      },
     });
-  }
+  };
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
     const { formValues } = this.state;
@@ -427,9 +517,7 @@ class ModelTable extends Component {
       params.sorter = `${sorter.field}__${sorter.order.slice(0, -3)}`;
     }
 
-    this.fetchData(params, () => {
-      this.setState({ selectedRows: [] });
-    });
+    this.fetchData(params);
   };
 
   handleFormReset = () => {
@@ -443,9 +531,7 @@ class ModelTable extends Component {
 
   handleRefresh = () => {
     const { formValues } = this.state;
-    this.fetchData(formValues, () => {
-      this.setState({ selectedRows: [] });
-    });
+    this.fetchData(formValues);
   };
 
   handleSelectRows = rows => {
@@ -555,6 +641,21 @@ class ModelTable extends Component {
         title: '姓名',
         dataIndex: 'name',
         sorter: true,
+      },
+      {
+        title: '角色',
+        dataIndex: 'roles',
+        render: val => val && val.map(item => item.name).join(', '),
+      },
+      {
+        title: '组',
+        dataIndex: 'groups',
+        render: val => val && val.map(item => item.name).join(', '),
+      },
+      {
+        title: '友',
+        dataIndex: 'friends',
+        render: val => val && val.map(item => item.name).join(', '),
       },
       {
         title: '性别',

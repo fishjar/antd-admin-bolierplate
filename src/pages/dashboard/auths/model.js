@@ -69,7 +69,7 @@ const Model = {
     },
 
     *updateBulk({ payload = {}, callback }, { call, put }) {
-      const response = yield call(updateByPk, payload);
+      const response = yield call(bulkUpdate, payload);
       const { ids, fields } = payload;
       yield put({
         type: 'pactch',

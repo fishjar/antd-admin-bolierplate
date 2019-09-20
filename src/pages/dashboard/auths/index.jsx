@@ -26,6 +26,7 @@ import {
   message,
   Popconfirm,
   Modal,
+  Switch,
 } from 'antd';
 
 const modelKey = 'auths';
@@ -252,6 +253,12 @@ const EditModal = Form.create()(
                 initialValue: expireTime,
               })(<DateSelect showTime />)}
             </FormItem>
+            <FormItem label="是否启用">
+              {form.getFieldDecorator('isEnabled', {
+                initialValue: isEnabled,
+                valuePropName: 'checked',
+              })(<Switch />)}
+            </FormItem>
           </Form>
         </Modal>
       </span>
@@ -261,7 +268,7 @@ const EditModal = Form.create()(
 
 @connect(({ [modelKey]: data, loading }) => ({
   data,
-  loading: loading.models['modelKey'],
+  loading: loading.models[modelKey],
 }))
 @Form.create()
 class ModelTable extends Component {
@@ -274,14 +281,16 @@ class ModelTable extends Component {
     this.fetchData();
   }
 
-  fetchData(params, callback) {
+  fetchData = params => {
     const { dispatch } = this.props;
     dispatch({
       type: `${modelKey}/fetch`,
       payload: params,
-      callback,
+      callback: () => {
+        this.setState({ selectedRows: [] });
+      },
     });
-  }
+  };
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
     const { formValues } = this.state;
@@ -297,9 +306,7 @@ class ModelTable extends Component {
       params.sorter = `${sorter.field}__${sorter.order.slice(0, -3)}`;
     }
 
-    this.fetchData(params, () => {
-      this.setState({ selectedRows: [] });
-    });
+    this.fetchData(params);
   };
 
   handleFormReset = () => {
@@ -313,9 +320,7 @@ class ModelTable extends Component {
 
   handleRefresh = () => {
     const { formValues } = this.state;
-    this.fetchData(formValues, () => {
-      this.setState({ selectedRows: [] });
-    });
+    this.fetchData(formValues);
   };
 
   handleSelectRows = rows => {
@@ -367,6 +372,30 @@ class ModelTable extends Component {
     });
   };
 
+  handleUpdateMultiple = fields => {
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
+    if (!selectedRows.length) return;
+    dispatch({
+      type: `${modelKey}/updateBulk`,
+      payload: {
+        ids: selectedRows.map(item => item.id),
+        fields,
+      },
+      callback: () => {
+        message.success('更新成功');
+      },
+    });
+  };
+
+  handleEnabledMultiple = () => {
+    this.handleUpdateMultiple({ isEnabled: true });
+  };
+
+  handleDisabledMultiple = () => {
+    this.handleUpdateMultiple({ isEnabled: false });
+  };
+
   renderForm() {
     const { form } = this.props;
     const { getFieldDecorator } = form;
@@ -385,14 +414,11 @@ class ModelTable extends Component {
             </FormItem>
           </Col>
           <Col md={6} sm={24}>
-            <FormItem label="性别">
-              {getFieldDecorator('gender')(
+            <FormItem label="是否启用">
+              {getFieldDecorator('isEnabled')(
                 <Select allowClear placeholder="请选择">
-                  {Object.entries(enumMaps['gender']).map(([key, val]) => (
-                    <Option value={key} key={key}>
-                      {val}
-                    </Option>
-                  ))}
+                  <Option value={1}>是</Option>
+                  <Option value={0}>否</Option>
                 </Select>,
               )}
             </FormItem>
@@ -506,9 +532,17 @@ class ModelTable extends Component {
                 </Button>
               </EditModal>
               {selectedRows.length > 0 && (
-                <Popconfirm title="确定删除？" onConfirm={() => this.handleDeleteMultiple()}>
-                  <Button icon="delete">删除</Button>
-                </Popconfirm>
+                <Fragment>
+                  <Button icon="arrow-up" onClick={this.handleEnabledMultiple}>
+                    启用
+                  </Button>
+                  <Button icon="arrow-down" onClick={this.handleDisabledMultiple}>
+                    禁用
+                  </Button>
+                  <Popconfirm title="确定删除？" onConfirm={() => this.handleDeleteMultiple()}>
+                    <Button icon="delete">删除</Button>
+                  </Popconfirm>
+                </Fragment>
               )}
             </div>
             <StandardTable

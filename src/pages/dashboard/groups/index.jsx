@@ -214,14 +214,16 @@ class ModelTable extends Component {
     this.fetchData();
   }
 
-  fetchData(params, callback) {
+  fetchData = params => {
     const { dispatch } = this.props;
     dispatch({
       type: `${modelKey}/fetch`,
       payload: params,
-      callback,
+      callback: () => {
+        this.setState({ selectedRows: [] });
+      },
     });
-  }
+  };
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
     const { formValues } = this.state;
@@ -237,9 +239,7 @@ class ModelTable extends Component {
       params.sorter = `${sorter.field}__${sorter.order.slice(0, -3)}`;
     }
 
-    this.fetchData(params, () => {
-      this.setState({ selectedRows: [] });
-    });
+    this.fetchData(params);
   };
 
   handleFormReset = () => {
@@ -253,9 +253,7 @@ class ModelTable extends Component {
 
   handleRefresh = () => {
     const { formValues } = this.state;
-    this.fetchData(formValues, () => {
-      this.setState({ selectedRows: [] });
-    });
+    this.fetchData(formValues);
   };
 
   handleSelectRows = rows => {
