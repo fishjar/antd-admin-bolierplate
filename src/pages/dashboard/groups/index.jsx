@@ -88,7 +88,7 @@ const ViewModal = ({
           {name}
         </FormItem>
         <FormItem {...formLayout} label="队长">
-          {leader.name}
+          {leader && leader.name}
         </FormItem>
         <FormItem {...formLayout} label="队员">
           {menbers.map(item => item.name).join(', ')}
@@ -387,7 +387,7 @@ class ModelTable extends Component {
       {
         title: '队长',
         dataIndex: 'leaderId',
-        render: (_, record) => record.leader.name,
+        render: (_, record) => record.leader && record.leader.name,
       },
       {
         title: '队员',

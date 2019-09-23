@@ -124,36 +124,48 @@ export default {
                   component: './dashboard/users',
                 },
                 {
-                  path: "/dashboard/auths",
-                  name: "auths",
+                  path: '/dashboard/auths',
+                  name: 'auths',
                   component: './dashboard/auths',
                 },
                 {
-                  path: "/dashboard/roles",
-                  name: "roles",
+                  path: '/dashboard/roles',
+                  name: 'roles',
                   component: './dashboard/roles',
                 },
                 {
-                  path: "/dashboard/groups",
-                  name: "groups",
+                  path: '/dashboard/groups',
+                  name: 'groups',
                   component: './dashboard/groups',
                 },
                 {
-                  path: "/dashboard/menus",
-                  name: "menus",
+                  path: '/dashboard/menus',
+                  name: 'menus',
                   component: './dashboard/menus',
                 },
                 {
-                  path: "/dashboard/usergroups",
-                  name: "usergroups",
+                  path: '/dashboard/usergroups',
+                  name: 'usergroups',
                   component: './dashboard/usergroups',
                 },
+                {
+                  component: './403',
+                },
+                {
+                  component: './404',
+                },
               ],
+            },
+            {
+              component: './403',
             },
             {
               component: './404',
             },
           ],
+        },
+        {
+          component: './403',
         },
         {
           component: './404',

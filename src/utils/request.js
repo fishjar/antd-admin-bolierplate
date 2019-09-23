@@ -3,6 +3,7 @@
  * 更详细的 api 文档: https://github.com/umijs/umi-request
  */
 import { extend } from 'umi-request';
+import router from 'umi/router';
 import { notification } from 'antd';
 import { getAuthentication } from '@/utils/authority';
 
@@ -37,10 +38,13 @@ const errorHandler = error => {
       message: `请求错误 ${status}: ${url}`,
       description: errorText,
     });
-    if (response.status === 401 || response.status === 403) {
+    if (response.status === 401) {
       window.g_app._store.dispatch({
         type: 'login/logout',
       });
+    }
+    if (response.status === 403) {
+      router.push('/403');
     }
   } else if (!response) {
     notification.error({
@@ -49,7 +53,7 @@ const errorHandler = error => {
     });
   }
 
-  return response;
+  return;
 };
 /**
  * 配置request请求时的默认参数

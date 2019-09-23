@@ -20,6 +20,9 @@ const Model = {
   effects: {
     *fetch({ payload = {}, callback }, { call, put }) {
       const response = yield call(findAndCountAll, payload);
+      if (!response) {
+        return;
+      }
       const data = {
         list: response.rows,
         pagination: {

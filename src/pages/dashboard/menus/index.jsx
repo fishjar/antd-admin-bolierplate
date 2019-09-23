@@ -147,6 +147,7 @@ const EditModal = Form.create()(
       form.validateFields((err, fields) => {
         if (err) return;
         console.log(fields);
+        fields.parentId = fields.parentId || null;
         setLoading(true);
         if (id) {
           dispatch({
@@ -187,7 +188,7 @@ const EditModal = Form.create()(
             <FormItem label="名称">
               {form.getFieldDecorator('name', {
                 initialValue: name,
-                rules: [{ required: true, message: '请输入！', min: 3, max: 20 }],
+                rules: [{ required: true, message: '请输入！' }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
             <FormItem label="父菜单">
