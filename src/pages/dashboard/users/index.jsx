@@ -5,6 +5,7 @@ import moment from 'moment';
 import StandardTable from '@/components/StandardTable';
 import DateSelect from '@/components/DateSelect';
 import JSONEdit from '@/components/JSONEdit';
+import ObjectArrayEdit from '@/components/ObjectArrayEdit';
 import styles from './style.less';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -71,7 +72,7 @@ const ViewModal = ({
     bloodType,
     notice,
     address,
-    lives,
+    lives = [],
     tags,
     luckyNumbers,
     score,
@@ -106,82 +107,38 @@ const ViewModal = ({
         onCancel={handleHide}
         footer={null}
       >
-        <FormItem {...formLayout} label="ID">
-          {id}
-        </FormItem>
-        <FormItem {...formLayout} label="名称">
-          {name}
-        </FormItem>
-        <FormItem {...formLayout} label="绑定帐号">
-          {auths.map(item => (
-            <div key={item.id}>{`帐号类型: ${item.authType}, 帐号名称: ${item.authName} (${
-              item.isEnabled ? '启用' : '禁用'
-            })`}</div>
-          ))}
-        </FormItem>
-        <FormItem {...formLayout} label="角色">
-          {roles.map(item => item.name).join(', ')}
-        </FormItem>
-        <FormItem {...formLayout} label="组">
-          {groups.map(item => item.name).join(', ')}
-        </FormItem>
-        <FormItem {...formLayout} label="朋友">
-          {friends.map(item => item.name).join(', ')}
-        </FormItem>
-        <FormItem {...formLayout} label="昵称">
-          {nickname}
-        </FormItem>
-        <FormItem {...formLayout} label="性别">
-          {enumMaps['gender'][gender]}
-        </FormItem>
-        <FormItem {...formLayout} label="头像">
-          {avatar}
-        </FormItem>
-        <FormItem {...formLayout} label="手机">
-          {mobile}
-        </FormItem>
-        <FormItem {...formLayout} label="邮箱">
-          {email}
-        </FormItem>
-        <FormItem {...formLayout} label="主页">
-          {homepage}
-        </FormItem>
-        <FormItem {...formLayout} label="生日">
-          {birthday && moment(birthday).format('YYYY-MM-DD')}
-        </FormItem>
-        <FormItem {...formLayout} label="身高(cm)">
-          {height}
-        </FormItem>
-        <FormItem {...formLayout} label="血型(ABO)">
-          {enumMaps['bloodType'][bloodType]}
-        </FormItem>
-        <FormItem {...formLayout} label="备注">
-          {notice}
-        </FormItem>
-        <FormItem {...formLayout} label="地址">
-          {address && JSON.stringify(address)}
-        </FormItem>
-        <FormItem {...formLayout} label="生活轨迹">
-          {lives && JSON.stringify(lives)}
-        </FormItem>
-        <FormItem {...formLayout} label="标签">
-          {tags && tags.join(', ')}
-        </FormItem>
-        <FormItem {...formLayout} label="幸运数字">
-          {luckyNumbers && luckyNumbers.join(', ')}
-        </FormItem>
-        <FormItem {...formLayout} label="积分">
-          {score}
-        </FormItem>
-        <FormItem {...formLayout} label="编号">
-          {userNo}
-        </FormItem>
-        <FormItem {...formLayout} label="创建时间">
-          {moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}
-        </FormItem>
-        <FormItem {...formLayout} label="更新时间">
-          {moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}
-        </FormItem>
+        <Form {...formLayout}>
+          <FormItem label="ID">{id}</FormItem>
+          <FormItem label="名称">{name}</FormItem>
+          <FormItem label="绑定帐号">
+            {auths.map(item => (
+              <div key={item.id}>{`帐号类型: ${item.authType}, 帐号名称: ${item.authName} (${
+                item.isEnabled ? '启用' : '禁用'
+              })`}</div>
+            ))}
+          </FormItem>
+          <FormItem label="角色">{roles.map(item => item.name).join(', ')}</FormItem>
+          <FormItem label="组">{groups.map(item => item.name).join(', ')}</FormItem>
+          <FormItem label="朋友">{friends.map(item => item.name).join(', ')}</FormItem>
+          <FormItem label="昵称">{nickname}</FormItem>
+          <FormItem label="性别">{enumMaps['gender'][gender]}</FormItem>
+          <FormItem label="头像">{avatar}</FormItem>
+          <FormItem label="手机">{mobile}</FormItem>
+          <FormItem label="邮箱">{email}</FormItem>
+          <FormItem label="主页">{homepage}</FormItem>
+          <FormItem label="生日">{birthday && moment(birthday).format('YYYY-MM-DD')}</FormItem>
+          <FormItem label="身高(cm)">{height}</FormItem>
+          <FormItem label="血型(ABO)">{enumMaps['bloodType'][bloodType]}</FormItem>
+          <FormItem label="备注">{notice}</FormItem>
+          <FormItem label="地址">{address && JSON.stringify(address)}</FormItem>
+          <FormItem label="生活轨迹">{lives && JSON.stringify(lives)}</FormItem>
+          <FormItem label="标签">{tags && tags.join(', ')}</FormItem>
+          <FormItem label="幸运数字">{luckyNumbers && luckyNumbers.join(', ')}</FormItem>
+          <FormItem label="积分">{score}</FormItem>
+          <FormItem label="编号">{userNo}</FormItem>
+          <FormItem label="创建时间">{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</FormItem>
+          <FormItem label="更新时间">{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</FormItem>
+        </Form>
       </Modal>
     </span>
   );
@@ -208,7 +165,7 @@ const EditModal = Form.create()(
       notice,
       intro,
       address,
-      lives,
+      lives = [],
       tags,
       luckyNumbers,
       score,
@@ -228,6 +185,8 @@ const EditModal = Form.create()(
     const roleIds = roles.map(item => item.id);
     const groupIds = groups.map(item => item.id);
     const friendIds = friends.map(item => item.id);
+
+    const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
 
     const handleShow = () => {
       setVisible(true);
@@ -266,6 +225,8 @@ const EditModal = Form.create()(
         console.log(fields);
         setLoading(true);
         if (id) {
+          fields['gender'] = fields['gender'] || null;
+          fields['bloodType'] = fields['bloodType'] || null;
           dispatch({
             type: 'users/update',
             payload: {
@@ -308,13 +269,13 @@ const EditModal = Form.create()(
         >
           <Form {...formLayout} onSubmit={handleOk}>
             <FormItem label="名称">
-              {form.getFieldDecorator('name', {
+              {getFieldDecorator('name', {
                 initialValue: name,
                 rules: [{ required: true, message: '请输入！', min: 3, max: 20 }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
             <FormItem label="关联角色">
-              {form.getFieldDecorator('roleIds', {
+              {getFieldDecorator('roleIds', {
                 initialValue: roleIds,
               })(
                 <Select
@@ -334,7 +295,7 @@ const EditModal = Form.create()(
               )}
             </FormItem>
             <FormItem label="关联组">
-              {form.getFieldDecorator('groupIds', {
+              {getFieldDecorator('groupIds', {
                 initialValue: groupIds,
               })(
                 <Select
@@ -354,7 +315,7 @@ const EditModal = Form.create()(
               )}
             </FormItem>
             <FormItem label="关联朋友">
-              {form.getFieldDecorator('friendIds', {
+              {getFieldDecorator('friendIds', {
                 initialValue: friendIds,
               })(
                 <Select
@@ -374,16 +335,16 @@ const EditModal = Form.create()(
               )}
             </FormItem>
             <FormItem label="昵称">
-              {form.getFieldDecorator('nickname', {
+              {getFieldDecorator('nickname', {
                 initialValue: nickname,
                 rules: [{ max: 64 }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
             <FormItem label="性别">
-              {form.getFieldDecorator('gender', {
+              {getFieldDecorator('gender', {
                 initialValue: gender,
               })(
-                <Select placeholder="请选择">
+                <Select placeholder="请选择" allowClear>
                   {Object.entries(enumMaps['gender']).map(([key, val]) => (
                     <Option key={key} value={Number.isNaN(parseInt(key)) ? key : parseInt(key)}>
                       {val}
@@ -393,43 +354,43 @@ const EditModal = Form.create()(
               )}
             </FormItem>
             <FormItem label="头像">
-              {form.getFieldDecorator('avatar', {
+              {getFieldDecorator('avatar', {
                 initialValue: avatar,
               })(<Input placeholder="请输入" />)}
             </FormItem>
             <FormItem label="手机">
-              {form.getFieldDecorator('mobile', {
+              {getFieldDecorator('mobile', {
                 initialValue: mobile,
                 rules: [{ max: 16 }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
             <FormItem label="邮箱">
-              {form.getFieldDecorator('email', {
+              {getFieldDecorator('email', {
                 initialValue: email,
                 rules: [{ max: 16 }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
             <FormItem label="主页">
-              {form.getFieldDecorator('homepage', {
+              {getFieldDecorator('homepage', {
                 initialValue: homepage,
                 rules: [{ max: 16 }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
             <FormItem label="生日">
-              {form.getFieldDecorator('birthday', {
+              {getFieldDecorator('birthday', {
                 initialValue: birthday,
               })(<DateSelect />)}
             </FormItem>
             <FormItem label="身高(cm)">
-              {form.getFieldDecorator('height', {
+              {getFieldDecorator('height', {
                 initialValue: height,
               })(<InputNumber min={0.01} max={250} placeholder="请输入" />)}
             </FormItem>
             <FormItem label="血型">
-              {form.getFieldDecorator('bloodType', {
+              {getFieldDecorator('bloodType', {
                 initialValue: bloodType,
               })(
-                <Select placeholder="请选择">
+                <Select placeholder="请选择" allowClear>
                   {Object.entries(enumMaps['bloodType']).map(([key, val]) => (
                     <Option key={key} value={Number.isNaN(parseInt(key)) ? key : parseInt(key)}>
                       {val}
@@ -439,37 +400,77 @@ const EditModal = Form.create()(
               )}
             </FormItem>
             <FormItem label="备注">
-              {form.getFieldDecorator('notice', {
+              {getFieldDecorator('notice', {
                 initialValue: notice,
               })(<TextArea autosize placeholder="请输入" />)}
             </FormItem>
             <FormItem label="介绍">
-              {form.getFieldDecorator('intro', {
+              {getFieldDecorator('intro', {
                 initialValue: intro || '',
               })(<ReactQuill placeholder="请输入" />)}
             </FormItem>
-            {/* <FormItem label="地址">
-              {form.getFieldDecorator('address', {
-                initialValue: address,
-              })(<JSONEdit placeholder="请输入" />)}
-            </FormItem> */}
-            <FormItem label="地址-省">
-              {form.getFieldDecorator('address.province', {
-                initialValue: address && address.province,
-              })(<Input placeholder="请输入" />)}
-            </FormItem>
-            <FormItem label="地址-市">
-              {form.getFieldDecorator('address.city', {
-                initialValue: address && address.city,
-              })(<Input placeholder="请输入" />)}
+            <FormItem label="地址">
+              <FormItem>
+                {getFieldDecorator('address.province', {
+                  initialValue: address && address.province,
+                })(<Input addonBefore="省" />)}
+              </FormItem>
+              <FormItem>
+                {getFieldDecorator('address.city', {
+                  initialValue: address && address.city,
+                })(<Input addonBefore="市" />)}
+              </FormItem>
             </FormItem>
             <FormItem label="生活轨迹">
-              {form.getFieldDecorator('lives', {
+              {getFieldDecorator('lives', {
+                initialValue: lives,
+              })(
+                <ObjectArrayEdit
+                  fieldsDefine={{
+                    x: { type: 'number', description: 'X坐标' },
+                    y: { type: 'number', description: 'Y坐标' },
+                  }}
+                  placeholder="请输入"
+                />,
+              )}
+            </FormItem>
+            {/* <FormItem label="生活轨迹">
+              {getFieldDecorator('lives', {
                 initialValue: lives,
               })(<JSONEdit placeholder="请输入" />)}
-            </FormItem>
+            </FormItem> */}
+            {/* <FormItem label="生活轨迹">
+              {(lives || [{x:"1",y:"2"}]).map((item, index) => (
+                <Card>
+                  <FormItem>
+                    {getFieldDecorator(`lives[${index}]["x"]`, {
+                      initialValue: item.x,
+                    })(<Input addonBefore="x坐标" />)}
+                  </FormItem>
+                  <FormItem>
+                    {getFieldDecorator(`lives[${index}]["y"]`, {
+                      initialValue: item.y,
+                    })(<Input addonBefore="y坐标" />)}
+                  </FormItem>
+                </Card>
+              ))}
+              <Button
+                style={{
+                  width: '100%',
+                  marginTop: 12,
+                }}
+                type="dashed"
+                // onClick={() => {
+                //   setFieldsValue([...(getFieldValue('lives') || []), {}]);
+                // }}
+                onClick={handleAdd}
+                icon="plus"
+              >
+                Add field
+              </Button>
+            </FormItem> */}
             <FormItem label="标签">
-              {form.getFieldDecorator('tags', {
+              {getFieldDecorator('tags', {
                 initialValue: tags || undefined,
               })(
                 <Select mode="tags" tokenSeparators={[',']} placeholder="请输入">
@@ -482,7 +483,7 @@ const EditModal = Form.create()(
               )}
             </FormItem>
             <FormItem label="幸运数字">
-              {form.getFieldDecorator('luckyNumbers', {
+              {getFieldDecorator('luckyNumbers', {
                 initialValue: luckyNumbers || undefined,
               })(
                 <Select mode="tags" tokenSeparators={[',']} placeholder="请输入">
@@ -495,7 +496,7 @@ const EditModal = Form.create()(
               )}
             </FormItem>
             <FormItem label="积分">
-              {form.getFieldDecorator('score', {
+              {getFieldDecorator('score', {
                 initialValue: score,
               })(<InputNumber placeholder="请输入" parser={input => input && ~~input} />)}
             </FormItem>
@@ -511,7 +512,7 @@ const EditModal = Form.create()(
   loading: loading.models[modelKey],
 }))
 @Form.create()
-class ModelTable extends Component {
+export default class ModelTable extends Component {
   state = {
     selectedRows: [],
     formValues: {},
@@ -780,5 +781,3 @@ class ModelTable extends Component {
     );
   }
 }
-
-export default ModelTable;

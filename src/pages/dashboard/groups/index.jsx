@@ -81,24 +81,14 @@ const ViewModal = ({
         onCancel={handleHide}
         footer={null}
       >
-        <FormItem {...formLayout} label="ID">
-          {id}
-        </FormItem>
-        <FormItem {...formLayout} label="名称">
-          {name}
-        </FormItem>
-        <FormItem {...formLayout} label="队长">
-          {leader && leader.name}
-        </FormItem>
-        <FormItem {...formLayout} label="队员">
-          {menbers.map(item => item.name).join(', ')}
-        </FormItem>
-        <FormItem {...formLayout} label="创建时间">
-          {moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}
-        </FormItem>
-        <FormItem {...formLayout} label="更新时间">
-          {moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}
-        </FormItem>
+        <Form {...formLayout}>
+          <FormItem label="ID">{id}</FormItem>
+          <FormItem label="名称">{name}</FormItem>
+          <FormItem label="队长">{leader && leader.name}</FormItem>
+          <FormItem label="队员">{menbers.map(item => item.name).join(', ')}</FormItem>
+          <FormItem label="创建时间">{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</FormItem>
+          <FormItem label="更新时间">{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</FormItem>
+        </Form>
       </Modal>
     </span>
   );
@@ -237,7 +227,7 @@ const EditModal = Form.create()(
   loading: loading.models[modelKey],
 }))
 @Form.create()
-class ModelTable extends Component {
+export default class ModelTable extends Component {
   state = {
     selectedRows: [],
     formValues: {},
@@ -463,5 +453,3 @@ class ModelTable extends Component {
     );
   }
 }
-
-export default ModelTable;

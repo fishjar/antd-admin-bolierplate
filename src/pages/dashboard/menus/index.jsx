@@ -26,6 +26,7 @@ import {
   message,
   Popconfirm,
   Modal,
+  TreeSelect,
 } from 'antd';
 
 const modelKey = 'menus';
@@ -81,30 +82,16 @@ const ViewModal = ({
         onCancel={handleHide}
         footer={null}
       >
-        <FormItem {...formLayout} label="ID">
-          {id}
-        </FormItem>
-        <FormItem {...formLayout} label="名称">
-          {name}
-        </FormItem>
-        <FormItem {...formLayout} label="父级名称">
-          {parent && parent.name}
-        </FormItem>
-        <FormItem {...formLayout} label="路径">
-          {path}
-        </FormItem>
-        <FormItem {...formLayout} label="图标">
-          {icon}
-        </FormItem>
-        <FormItem {...formLayout} label="排序">
-          {sort}
-        </FormItem>
-        <FormItem {...formLayout} label="创建时间">
-          {moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}
-        </FormItem>
-        <FormItem {...formLayout} label="更新时间">
-          {moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}
-        </FormItem>
+        <Form {...formLayout}>
+          <FormItem label="ID">{id}</FormItem>
+          <FormItem label="名称">{name}</FormItem>
+          <FormItem label="父级名称">{parent && parent.name}</FormItem>
+          <FormItem label="路径">{path}</FormItem>
+          <FormItem label="图标">{icon}</FormItem>
+          <FormItem label="排序">{sort}</FormItem>
+          <FormItem label="创建时间">{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</FormItem>
+          <FormItem label="更新时间">{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</FormItem>
+        </Form>
       </Modal>
     </span>
   );
@@ -123,6 +110,17 @@ const EditModal = Form.create()(
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [menus, setMenus] = useState([]);
+
+    const buildTree = (list, pid) =>
+      list
+        .filter(item => item.parentId === pid)
+        .sort((a, b) => a.sort - b.sort)
+        .map(item => ({
+          title: item.name,
+          value: item.id,
+          key: item.id,
+          children: buildTree(list, item.id),
+        }));
 
     const handleShow = () => {
       setVisible(true);
@@ -147,9 +145,9 @@ const EditModal = Form.create()(
       form.validateFields((err, fields) => {
         if (err) return;
         console.log(fields);
-        fields.parentId = fields.parentId || null;
         setLoading(true);
         if (id) {
+          fields.parentId = fields.parentId || null;
           dispatch({
             type: `${modelKey}/update`,
             payload: { id, ...fields, parent: menus.find(item => item.id === fields.parentId) },
@@ -195,13 +193,19 @@ const EditModal = Form.create()(
               {form.getFieldDecorator('parentId', {
                 initialValue: parentId,
               })(
-                <Select placeholder="请选择" allowClear>
-                  {menus.map(item => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>,
+                // <Select placeholder="请选择" allowClear>
+                //   {menus.map(item => (
+                //     <Option key={item.id} value={item.id}>
+                //       {item.name}
+                //     </Option>
+                //   ))}
+                // </Select>,
+                <TreeSelect
+                  allowClear
+                  placeholder="请选择"
+                  treeData={buildTree(menus, null)}
+                  treeDefaultExpandAll
+                />,
               )}
             </FormItem>
             <FormItem label="路径">
@@ -233,7 +237,7 @@ const EditModal = Form.create()(
   loading: loading.models[modelKey],
 }))
 @Form.create()
-class ModelTable extends Component {
+export default class ModelTable extends Component {
   state = {
     selectedRows: [],
     formValues: {},
@@ -468,5 +472,3 @@ class ModelTable extends Component {
     );
   }
 }
-
-export default ModelTable;

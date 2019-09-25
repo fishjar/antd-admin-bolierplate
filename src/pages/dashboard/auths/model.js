@@ -20,6 +20,9 @@ const Model = {
   effects: {
     *fetch({ payload = {}, callback }, { call, put }) {
       const response = yield call(findAndCountAll, payload);
+      if (!response) {
+        return;
+      }
       const data = {
         list: response.rows,
         pagination: {
@@ -37,26 +40,29 @@ const Model = {
 
     *fetchSingle({ payload, callback }, { call, put }) {
       const response = yield call(findByPk, payload.id);
-      callback && callback(response);
+      response && callback && callback(response);
     },
 
     *add({ payload, callback }, { call }) {
       const response = yield call(singleCreate, payload);
-      callback && callback();
+      response && callback && callback();
     },
 
     *remove({ payload, callback }, { call, put }) {
       const response = yield call(destroyByPk, payload.id);
-      callback && callback();
+      response && callback && callback();
     },
 
     *removeBulk({ payload, callback }, { call, put }) {
       const response = yield call(bulkDestroy, payload.ids);
-      callback && callback();
+      response && callback && callback();
     },
 
     *update({ payload = {}, callback }, { call, put }) {
       const response = yield call(updateByPk, payload);
+      if (!response) {
+        return;
+      }
       const { id, ...fields } = payload;
       yield put({
         type: 'pactch',
@@ -70,6 +76,9 @@ const Model = {
 
     *updateBulk({ payload = {}, callback }, { call, put }) {
       const response = yield call(bulkUpdate, payload);
+      if (!response) {
+        return;
+      }
       const { ids, fields } = payload;
       yield put({
         type: 'pactch',

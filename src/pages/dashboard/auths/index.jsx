@@ -100,36 +100,22 @@ const ViewModal = ({
         onCancel={handleHide}
         footer={null}
       >
-        <FormItem {...formLayout} label="ID">
-          {id}
-        </FormItem>
-        <FormItem {...formLayout} label="关联用户ID">
-          {userId}
-        </FormItem>
-        <FormItem {...formLayout} label="关联用户姓名">
-          {user.name}
-        </FormItem>
-        <FormItem {...formLayout} label="鉴权类型">
-          {enumMaps['authType'][authType]}
-        </FormItem>
-        <FormItem {...formLayout} label="鉴权名称">
-          {authName}
-        </FormItem>
-        <FormItem {...formLayout} label="认证时间">
-          {verifyTime && moment(verifyTime).format('YYYY-MM-DD HH:mm:ss')}
-        </FormItem>
-        <FormItem {...formLayout} label="过期时间">
-          {expireTime && moment(expireTime).format('YYYY-MM-DD HH:mm:ss')}
-        </FormItem>
-        <FormItem {...formLayout} label="是否启用">
-          {isEnabled ? '是' : '否'}
-        </FormItem>
-        <FormItem {...formLayout} label="创建时间">
-          {moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}
-        </FormItem>
-        <FormItem {...formLayout} label="更新时间">
-          {moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}
-        </FormItem>
+        <Form {...formLayout}>
+          <FormItem label="ID">{id}</FormItem>
+          <FormItem label="关联用户ID">{userId}</FormItem>
+          <FormItem label="关联用户姓名">{user.name}</FormItem>
+          <FormItem label="鉴权类型">{enumMaps['authType'][authType]}</FormItem>
+          <FormItem label="鉴权名称">{authName}</FormItem>
+          <FormItem label="认证时间">
+            {verifyTime && moment(verifyTime).format('YYYY-MM-DD HH:mm:ss')}
+          </FormItem>
+          <FormItem label="过期时间">
+            {expireTime && moment(expireTime).format('YYYY-MM-DD HH:mm:ss')}
+          </FormItem>
+          <FormItem label="是否启用">{isEnabled ? '是' : '否'}</FormItem>
+          <FormItem label="创建时间">{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</FormItem>
+          <FormItem label="更新时间">{moment(updatedAt).format('YYYY-MM-DD HH:mm:ss')}</FormItem>
+        </Form>
       </Modal>
     </span>
   );
@@ -271,7 +257,7 @@ const EditModal = Form.create()(
   loading: loading.models[modelKey],
 }))
 @Form.create()
-class ModelTable extends Component {
+export default class ModelTable extends Component {
   state = {
     selectedRows: [],
     formValues: {},
@@ -560,5 +546,3 @@ class ModelTable extends Component {
     );
   }
 }
-
-export default ModelTable;
