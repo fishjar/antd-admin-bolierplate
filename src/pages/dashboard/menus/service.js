@@ -24,11 +24,11 @@ export async function singleCreate(data) {
     data,
   });
 }
-export async function bulkUpdate({ ids, fields }) {
+export async function bulkUpdate(ids, data) {
   return request(`/server/api/${modelKey}s`, {
     method: 'PATCH',
     params: { id: ids },
-    data: fields,
+    data,
   });
 }
 export async function bulkDestroy(ids) {
@@ -42,7 +42,7 @@ export async function findByPk(id) {
     params,
   });
 }
-export async function updateByPk({ id, ...data }) {
+export async function updateByPk(id, data) {
   return request(`/server/api/${modelKey}s/${id}`, {
     method: 'PATCH',
     data,

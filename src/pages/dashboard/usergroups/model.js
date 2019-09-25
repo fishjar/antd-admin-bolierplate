@@ -11,16 +11,23 @@ import {
   findOrCreate,
 } from './service';
 
+const initData = {
+  list: [],
+  pagination: {},
+};
+
 const Model = {
   namespace: 'usergroups',
-  state: {
-    list: [],
-    pagination: {},
-  },
+  state: initData,
   effects: {
     *fetch({ payload = {}, callback }, { call, put }) {
       const response = yield call(findAndCountAll, payload);
       if (!response) {
+        yield put({
+          type: 'save',
+          payload: initData,
+        });
+        callback && callback(initData);
         return;
       }
       const data = {
@@ -59,11 +66,11 @@ const Model = {
     },
 
     *update({ payload = {}, callback }, { call, put }) {
-      const response = yield call(updateByPk, payload);
+      const { id, ...fields } = payload;
+      const response = yield call(updateByPk, id, fields);
       if (!response) {
         return;
       }
-      const { id, ...fields } = payload;
       yield put({
         type: 'pactch',
         payload: {
@@ -75,11 +82,11 @@ const Model = {
     },
 
     *updateBulk({ payload = {}, callback }, { call, put }) {
-      const response = yield call(bulkUpdate, payload);
+      const { ids, fields } = payload;
+      const response = yield call(bulkUpdate, ids, fields);
       if (!response) {
         return;
       }
-      const { ids, fields } = payload;
       yield put({
         type: 'pactch',
         payload: {
