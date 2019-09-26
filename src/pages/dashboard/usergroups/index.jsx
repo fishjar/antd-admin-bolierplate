@@ -83,8 +83,8 @@ const ViewModal = ({
       >
         <Form {...formLayout}>
           <FormItem label="ID">{id}</FormItem>
-          <FormItem label="关联用户">{user.name}</FormItem>
-          <FormItem label="关联组">{group.name}</FormItem>
+          <FormItem label="关联用户">{user && user.name}</FormItem>
+          <FormItem label="关联组">{group && group.name}</FormItem>
           <FormItem label="级别">{level}</FormItem>
           <FormItem label="加入时间">{moment(joinTime).format('YYYY-MM-DD HH:mm:ss')}</FormItem>
           <FormItem label="创建时间">{moment(createdAt).format('YYYY-MM-DD HH:mm:ss')}</FormItem>
@@ -380,12 +380,12 @@ export default class ModelTable extends Component {
       {
         title: '关联用户',
         dataIndex: 'userId',
-        render: (_, record) => record.user.name,
+        render: (_, record) => record.user && record.user.name,
       },
       {
         title: '关联组',
         dataIndex: 'groupId',
-        render: (_, record) => record.group.name,
+        render: (_, record) => record.group && record.group.name,
       },
       {
         title: '级别',
