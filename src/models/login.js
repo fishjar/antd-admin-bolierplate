@@ -12,6 +12,14 @@ const Model = {
     *login({ payload }, { call, put }) {
       // const response = yield call(fakeAccountLogin, payload);
       const response = yield call(accountLogin, payload);
+      if(!response) {
+        // Login error
+        yield put({
+          type: 'changeLoginStatus',
+          payload: undefined,
+        });
+        return;
+      }
       yield put({
         type: 'changeLoginStatus',
         payload: response,

@@ -10,8 +10,8 @@ export async function queryNotices() {
   return request('/api/notices');
 }
 
-export async function queryMenus(params) {
-  return request('/server/api/user/menus', { params });
+export async function queryMenus() {
+  return request('/server/api/user/menus');
 }
 export async function queryCurrentUser() {
   return request('/server/api/user/current');

@@ -22,9 +22,6 @@ class SecurityLayout extends React.Component {
       });
       dispatch({
         type: 'global/fetchMenus',
-        payload: {
-          format: true,
-        },
         callback: () => {
           this.setState({
             isMenuReady: true,

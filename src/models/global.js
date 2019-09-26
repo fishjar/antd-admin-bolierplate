@@ -1,4 +1,23 @@
 import { queryNotices, queryMenus } from '@/services/user';
+
+/**
+ * 格式化菜单
+ * @param {*} menus 
+ * @param {*} parentId 
+ */
+const formatMenus = (menus, parentId) =>
+  menus
+    .filter(item => item.parentId === parentId)
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ id, path, name, icon, sort }) => ({
+      id,
+      path,
+      name,
+      icon,
+      sort,
+      children: formatMenus(menus, id),
+    }));
+
 const GlobalModel = {
   namespace: 'global',
   state: {
@@ -7,8 +26,15 @@ const GlobalModel = {
     menus: [],
   },
   effects: {
-    *fetchMenus({ payload, callback }, { call, put, select }) {
-      const response = yield call(queryMenus, payload);
+    *fetchMenus({ callback }, { call, put, select }) {
+      const response = yield call(queryMenus);
+      if (!response) {
+        yield put({
+          type: 'saveMenus',
+          payload: [],
+        });
+        return;
+      }
       yield put({
         type: 'saveMenus',
         payload: response,
@@ -91,7 +117,7 @@ const GlobalModel = {
     saveMenus(state, { payload }) {
       return {
         ...state,
-        menus: payload,
+        menus: formatMenus(payload, null),
       };
     },
 
