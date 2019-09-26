@@ -106,21 +106,11 @@ const EditModal = Form.create()(
     dispatch,
     handleRefresh,
   }) => {
+    const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
+
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [allMenus, setAllMenus] = useState([]);
-
-    const menuIds = menus.map(item => item.id);
-
-    // const buildMenuTree = (menus, pid) =>
-    //   menus
-    //     .filter(item => item.parentId === pid)
-    //     .map(item => ({
-    //       title: item.name,
-    //       value: item.id,
-    //       key: item.id,
-    //       children: buildMenuTree(menus, item.id),
-    //     }));
 
     const handleShow = () => {
       setVisible(true);
@@ -152,7 +142,6 @@ const EditModal = Form.create()(
             payload: {
               id,
               ...fields,
-              menus: fields.menuIds.map(key => allMenus.find(item => item.id === key)),
             },
             callback: () => {
               message.success('更新成功');
@@ -194,9 +183,9 @@ const EditModal = Form.create()(
             </FormItem>
             {allMenus.length > 0 && (
               <FormItem label="关联菜单">
-                {form.getFieldDecorator('menuIds', {
-                  initialValue: menuIds,
-                })(<TreeNodeSelect allMenus={allMenus} />)}
+                {form.getFieldDecorator('menus', {
+                  initialValue: menus,
+                })(<TreeNodeSelect isObject listData={allMenus} />)}
               </FormItem>
             )}
           </Form>

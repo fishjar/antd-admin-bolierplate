@@ -6,6 +6,7 @@ import StandardTable from '@/components/StandardTable';
 import DateSelect from '@/components/DateSelect';
 import JSONEdit from '@/components/JSONEdit';
 import ObjectArrayEdit from '@/components/ObjectArrayEdit';
+import ObjectArraySelect from '@/components/ObjectArraySelect';
 import styles from './style.less';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -176,17 +177,13 @@ const EditModal = Form.create()(
     dispatch,
     handleRefresh,
   }) => {
+    const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
+
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [allRoles, setAllRoles] = useState([]);
     const [allGroups, setAllGroups] = useState([]);
     const [allFriends, setAllFriends] = useState([]);
-
-    const roleIds = roles.map(item => item.id);
-    const groupIds = groups.map(item => item.id);
-    const friendIds = friends.map(item => item.id);
-
-    const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
 
     const handleShow = () => {
       setVisible(true);
@@ -225,16 +222,13 @@ const EditModal = Form.create()(
         console.log(fields);
         setLoading(true);
         if (id) {
-          fields['gender'] = fields['gender'] || null;
-          fields['bloodType'] = fields['bloodType'] || null;
           dispatch({
             type: 'users/update',
             payload: {
               id,
               ...fields,
-              roles: fields.roleIds.map(key => allRoles.find(item => item.id === key)),
-              groups: fields.groupIds.map(key => allGroups.find(item => item.id === key)),
-              friends: fields.friendIds.map(key => allFriends.find(item => item.id === key)),
+              gender: fields.gender || null,
+              bloodType: fields.bloodType || null,
             },
             callback: () => {
               message.success('更新成功');
@@ -275,64 +269,19 @@ const EditModal = Form.create()(
               })(<Input placeholder="请输入" />)}
             </FormItem>
             <FormItem label="关联角色">
-              {getFieldDecorator('roleIds', {
-                initialValue: roleIds,
-              })(
-                <Select
-                  mode="multiple"
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                  placeholder="请选择"
-                >
-                  {allRoles.map(item => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>,
-              )}
+              {getFieldDecorator('roles', {
+                initialValue: roles,
+              })(<ObjectArraySelect listData={allRoles} />)}
             </FormItem>
             <FormItem label="关联组">
-              {getFieldDecorator('groupIds', {
-                initialValue: groupIds,
-              })(
-                <Select
-                  mode="multiple"
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                  placeholder="请选择"
-                >
-                  {allGroups.map(item => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>,
-              )}
+              {getFieldDecorator('groups', {
+                initialValue: groups,
+              })(<ObjectArraySelect listData={allGroups} />)}
             </FormItem>
-            <FormItem label="关联朋友">
-              {getFieldDecorator('friendIds', {
-                initialValue: friendIds,
-              })(
-                <Select
-                  mode="multiple"
-                  optionFilterProp="children"
-                  filterOption={(input, option) =>
-                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }
-                  placeholder="请选择"
-                >
-                  {allFriends.map(item => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>,
-              )}
+            <FormItem label="关联组">
+              {getFieldDecorator('friends', {
+                initialValue: friends,
+              })(<ObjectArraySelect listData={allFriends} />)}
             </FormItem>
             <FormItem label="昵称">
               {getFieldDecorator('nickname', {
@@ -434,41 +383,6 @@ const EditModal = Form.create()(
                 />,
               )}
             </FormItem>
-            {/* <FormItem label="生活轨迹">
-              {getFieldDecorator('lives', {
-                initialValue: lives,
-              })(<JSONEdit placeholder="请输入" />)}
-            </FormItem> */}
-            {/* <FormItem label="生活轨迹">
-              {(lives || [{x:"1",y:"2"}]).map((item, index) => (
-                <Card>
-                  <FormItem>
-                    {getFieldDecorator(`lives[${index}]["x"]`, {
-                      initialValue: item.x,
-                    })(<Input addonBefore="x坐标" />)}
-                  </FormItem>
-                  <FormItem>
-                    {getFieldDecorator(`lives[${index}]["y"]`, {
-                      initialValue: item.y,
-                    })(<Input addonBefore="y坐标" />)}
-                  </FormItem>
-                </Card>
-              ))}
-              <Button
-                style={{
-                  width: '100%',
-                  marginTop: 12,
-                }}
-                type="dashed"
-                // onClick={() => {
-                //   setFieldsValue([...(getFieldValue('lives') || []), {}]);
-                // }}
-                onClick={handleAdd}
-                icon="plus"
-              >
-                Add field
-              </Button>
-            </FormItem> */}
             <FormItem label="标签">
               {getFieldDecorator('tags', {
                 initialValue: tags || undefined,

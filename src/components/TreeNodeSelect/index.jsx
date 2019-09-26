@@ -2,17 +2,23 @@ import React, { useState, forwardRef } from 'react';
 import { Tree } from 'antd';
 const { TreeNode } = Tree;
 
-function TreeNodeSelect({ value = [], allMenus = [], onChange }, ref) {
+function TreeNodeSelect({ value = [], isObject, listData = [], onChange }, ref) {
   const handleCheck = e => {
-    onChange && onChange(e.checked);
+    if (onChange) {
+      if (isObject) {
+        onChange(e.checked.map(id => listData.find(item => item.id === id)));
+      } else {
+        onChange(e.checked);
+      }
+    }
   };
 
-  const buildMenuNode = (menus, pid) =>
-    menus
+  const buildTree = (list, pid) =>
+    list
       .filter(item => item.parentId === pid)
       .map(item => (
         <TreeNode title={item.name} key={item.id}>
-          {buildMenuNode(menus, item.id)}
+          {buildTree(list, item.id)}
         </TreeNode>
       ));
 
@@ -23,10 +29,10 @@ function TreeNodeSelect({ value = [], allMenus = [], onChange }, ref) {
       checkable
       selectable={false}
       onCheck={handleCheck}
-      defaultCheckedKeys={value}
+      defaultCheckedKeys={isObject ? value.map(item => item.id) : value}
       ref={ref}
     >
-      {buildMenuNode(allMenus, null)}
+      {buildTree(listData, null)}
     </Tree>
   );
 }

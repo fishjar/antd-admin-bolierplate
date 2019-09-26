@@ -5,6 +5,7 @@ import moment from 'moment';
 import StandardTable from '@/components/StandardTable';
 import DateSelect from '@/components/DateSelect';
 import JSONEdit from '@/components/JSONEdit';
+import ObjectArraySelect from '@/components/ObjectArraySelect';
 import styles from './style.less';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -104,6 +105,8 @@ const EditModal = Form.create()(
     dispatch,
     handleRefresh,
   }) => {
+    const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
+
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
     const [allUsers, setAllUsers] = useState([]);
@@ -141,7 +144,7 @@ const EditModal = Form.create()(
               id,
               ...fields,
               leader: allUsers.find(item => item.id === fields.leaderId),
-              menbers: fields.menberIds.map(key => allUsers.find(item => item.id === key)),
+              // menbers: fields.menberIds.map(key => allUsers.find(item => item.id === key)),
             },
             callback: () => {
               message.success('更新成功');
@@ -176,17 +179,17 @@ const EditModal = Form.create()(
         >
           <Form {...formLayout} onSubmit={handleOk}>
             <FormItem label="名称">
-              {form.getFieldDecorator('name', {
+              {getFieldDecorator('name', {
                 initialValue: name,
                 rules: [{ required: true, message: '请输入！', min: 3, max: 20 }],
               })(<Input placeholder="请输入" />)}
             </FormItem>
             <FormItem label="队长">
-              {form.getFieldDecorator('leaderId', {
+              {getFieldDecorator('leaderId', {
                 initialValue: leaderId,
                 rules: [{ required: true, message: '请选择！' }],
               })(
-                <Select placeholder="请选择">
+                <Select placeholder="请选择" showSearch optionFilterProp="children">
                   {allUsers.map(item => (
                     <Option key={item.id} value={item.id}>
                       {item.name}
@@ -195,8 +198,8 @@ const EditModal = Form.create()(
                 </Select>,
               )}
             </FormItem>
-            <FormItem label="队员">
-              {form.getFieldDecorator('menberIds', {
+            {/* <FormItem label="队员">
+              {getFieldDecorator('menberIds', {
                 initialValue: menberIds,
               })(
                 <Select
@@ -214,6 +217,11 @@ const EditModal = Form.create()(
                   ))}
                 </Select>,
               )}
+            </FormItem> */}
+            <FormItem label="队员">
+              {getFieldDecorator('menbers', {
+                initialValue: menbers,
+              })(<ObjectArraySelect listData={allUsers} />)}
             </FormItem>
           </Form>
         </Modal>

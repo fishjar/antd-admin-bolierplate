@@ -189,7 +189,7 @@ const EditModal = Form.create()(
                 initialValue: userId,
                 rules: [{ required: true, message: '请选择！' }],
               })(
-                <Select placeholder="请选择">
+                <Select placeholder="请选择" showSearch optionFilterProp="children">
                   {users.map(item => (
                     <Option key={item.id} value={item.id}>
                       {item.name}
@@ -203,7 +203,7 @@ const EditModal = Form.create()(
                 initialValue: groupId,
                 rules: [{ required: true, message: '请选择！' }],
               })(
-                <Select placeholder="请选择">
+                <Select placeholder="请选择" showSearch optionFilterProp="children">
                   {groups.map(item => (
                     <Option key={item.id} value={item.id}>
                       {item.name}
