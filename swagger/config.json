@@ -14,5 +14,5 @@
   "modelReplaceFiles": [
     ["swagger/template/style.less", "src/pages/dashboard/*/style.less"]
   ],
-  "removeFiles": ["swagger/swagger.yaml"]
+  "removeFiles": ["swagger/swagger.yaml", "src/pages/dashboard"]
 }
