@@ -7,10 +7,12 @@
   "modelFiles": [
     ["swagger/template/index.ejs", "src/pages/dashboard/*/index.jsx"],
     ["swagger/template/model.ejs", "src/pages/dashboard/*/model.js"],
-    ["swagger/template/service.ejs", "src/pages/dashboard/*/service.js"],
-    ["swagger/template/style.ejs", "src/pages/dashboard/*/style.less"]
+    ["swagger/template/service.ejs", "src/pages/dashboard/*/service.js"]
   ],
   "modelFilesCase": "pluralLower",
   "replaceFiles": [],
+  "modelReplaceFiles": [
+    ["swagger/template/style.less", "src/pages/dashboard/*/style.less"]
+  ],
   "removeFiles": ["swagger/swagger.yaml"]
 }
